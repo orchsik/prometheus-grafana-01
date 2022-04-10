@@ -1,0 +1,7 @@
+scrape_configs: # 수집대상에 대한 설정
+  - job_name: "prometheus"
+    scrape_interval: 3s # 수집간격 3초
+    scrape_timeout: 1s # 수집이 안 될 타임아웃 1초
+    static_configs: # 대상에 대한 설정
+      - targets:
+          - localhost:9090
