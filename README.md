@@ -1,3 +1,5 @@
+# EC2 Ubuntu 환경에서 Prometheus & Grafana 찍먹
+
 ## 1-1. Prometheus 설정
 
 - mkdir -p /prometheus/config /promethues/data
@@ -29,9 +31,47 @@ docker ps # 컨테이너 정상적으로 작동 확인
 
 ## 3. 실행한 prometheus 관리 API로 상태 확인
 
-- curl localhost:9090/-/healty -D /dev/stdout
+- curl localhost:9090/-/healty -D /dev/stdout  
   -D: 프로토콜의 헤더를 확인. 헤더확인 출력은 표준출력(/dev/stdout)으로
 - curl localhost:9090/-/healty -D /dev/stdout
-- curl localhost:9090/-/reload -XPOST -D /dev/stdout
-  - /prometheus/config/prometheus.yml 수정시 reload를 통해 적용 가능.
+- curl localhost:9090/-/reload -XPOST -D /dev/stdout  
+  /prometheus/config/prometheus.yml 수정시 reload를 통해 적용 가능.
 - curl localhost:9090/-/quit -XPOST -D /dev/stdout
+
+## 4. node_exporter 설치
+
+1. [도커를 이용한 설치](./install_node_exporter.bash)
+2. wget & systemctl을 이용한 설치.(정확한 버전은 https://prometheus.io/download/#node_exporter 참고.)
+   > wget https://github.com/prometheus/node_exporter/releases/download/v*/node_exporter-*.*-amd64.tar.gz  
+   > tar xvfz node*exporter-*._-amd64.tar.gz  
+   > cd node_exporter-_.\_-amd64  
+   > ./node_exporter
+
+- systemctl 설정
+
+  ```bash
+  echo "OPTION=" > /etc/default/node_exporter # 옵션을 위한 파일 생성
+  cat << EOF > /etc/systemd/system/node_exporter.service
+  > [Service]
+  > User=root
+  > EnvironmentFile=/etc/default/node_exporter
+  > ExecStart=/opt/node_exporter/node_exporter
+  > EOF
+
+  systemctl daemon-reload
+  systemctl start node_exporter.service # node_exporter 실행
+  ```
+
+## 5. 서비스 디스커버리 설정하기
+
+```bash
+cd /prometheus/config/
+mkdir sd
+# 서비스디스크버리 설정파일이 추가되므로 여러 설정파일을 하나의 링크파일로 관리하기 위해서 파일명 변경
+mv prometheus.yml static_sd.yml
+vim file_sd.yml
+```
+
+- [file_sd.yml](./service_discovery/file_sd.yml)
+- docker ps -a prometheus
+- Prometheus 재설치 by Docker
