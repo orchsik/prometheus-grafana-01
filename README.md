@@ -75,3 +75,48 @@ vim file_sd.yml
 - [file_sd.yml](./service_discovery/file_sd.yml)
 - docker ps -a prometheus
 - Prometheus 재설치 by Docker
+
+9090 / 9100
+
+## 6. Metrics 알아보기 간단한 웹서버를 통해
+
+1. 파이썬 웹서버
+
+- 파이썬 prometheus_client 설치
+
+```bash
+apt install -y python3-pip
+python3 -m pip install prometheus_client
+mkdir agent-python && cd agent-python
+vim main.py
+```
+
+- [웹서버 코드 작성](./metrics/main.py)
+- 테스트
+
+```bash
+python3 main.py
+watch -n 0.1 'curl -s http://localhost:8080 --http0.9'
+watch -n 0.1 'curl -s http://lcoalhost:8001 | grep response'
+```
+
+2. Node Express 웹서버
+
+- Express 웹서버 설치
+
+```bash
+apt install -y nodejs npm
+mkdir agent-node && cd agent-node
+npm init -y
+npm install express prom-client
+vim server.js
+```
+
+- [웹서버 코드 작성](./metrics/server.js)
+- 테스트
+
+```bash
+node server.js
+watch -n 0.1 'curl -s http://localhost:8080'
+watch -n 0,1 'curl -s http://localhost:8080/metrix'
+```
