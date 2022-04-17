@@ -9,6 +9,7 @@ docker run \
 -v /prometheus/data:/data \ # prometheus data
 prom/prometheus:v2.292 \ # 설치할 프로메테우스 이미지
 --config.file=/etc/prometheus/prometheus.yml \
---storage.tsdb.path=/data
---web.enable-lifecycle # reload quit 와 같은 명령어 사용 가능.
---storage.tsdeb.retention.time=20d # retention.time 설정.
+--storage.tsdb.path=/data \
+--web.enable-lifecycle  \ # reload quit 와 같은 명령어 사용 가능.
+--storage.tsdeb.retention.time=20d \ # retention.time 설정.
+--rules.alert.resend-delay=10s

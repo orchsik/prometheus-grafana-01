@@ -156,3 +156,61 @@ watch -n 0,1 'curl -s http://localhost:8080/metrix'
    ```
    - [worker.js](./pushgateway/worker.js)
    - http://########:9090/graph 에서 "batch_process_time_second[1m]" 쿼리로 확인 가능.
+
+8.  AlertManager
+
+    1. Prometheus에 AlertManager 설정하기
+
+       ```bash
+       vim /prometheus/config/alerting.yml
+       ```
+
+    - [alerting.yml](./AlertManager/alerting.yml)
+
+    2.  alert rules 설정하기
+
+        ```bash
+        mkdir rules
+        vim rules/ex.yml
+        ```
+
+        - [ex.yml](./AlertManager//ex.yml)
+        - [다양한 rules](https://awesome-prometheus-alerts.grep.to/rules)
+
+    3.  설정 적용
+
+        ```bash
+        cd /prometheus/config
+        ln -sf alerting.yml prometheus.yml
+        curl http://localhost:9090/-/reload -XPOST -D /dev/stdout
+        ```
+
+    4.  AlertManager 설치
+
+        ```bash
+        mkdir -p /alertmanager/config
+        vim alertmanager.yml
+        ```
+
+        - [alertmanager.yml](./AlertManager//alertmanager.yml)
+        - [docker로 AlertManager 설치](./AlertManager/install_alertmanager.sh)
+        - 설치된 것을 확인
+          - docker ps
+          - http:localhost:9093/#/alerts
+
+    5.  사용
+
+        - AlertManager는 API를 사용해서 Prometheus와 통신함.
+        - [API 목록](https://github.com/prometheus/alertmanager/blob/main/api/v2/openapi.yaml) - 예시
+          ```bash
+          curl -X 'POST' \
+          'http://localhost:9093/api/v2/alerts' \
+          -H 'accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -d '[{
+            "startsAt": "2022-04-17T10:25:32.534Z",
+            "endsAt": "2022-04-18T10:25:32.534Z",
+            "annotations": { "summary": "test" },
+            "labels": { "alertname": "test" }
+          }]'
+          ```

@@ -1,0 +1,13 @@
+# 알람 규칙 설정
+# exporter가 접근이 안 되는 경우가 10초동안 지속되면 서버가 다운 됬다고 판단하고 알림을 보내는 전략으로 규칙 작성
+groups:
+  - name: example
+    rules:
+      - alert: InstanceDown # 규칙 이름
+        expr: up == 0
+        for: 10s
+        labels:
+          severity: critical # 중요도 설정
+        annotations: # 알림에 대한 설명
+          summary: "Instance {{ $labels.instance }} down"
+          # summary: "Instance {{ $value }} down"

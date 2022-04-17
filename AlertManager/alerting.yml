@@ -1,0 +1,24 @@
+global:
+  # 규칙 확인 주기
+  evaluation_interval: 1s
+
+# 알람매니저 서버에 대한 설정
+alerting:
+  alertmanagers:
+    # 어떤 서버에 알림을 보낼지 설정
+    - static_configs:
+        - targets:
+            - localhost:9093
+
+# 규칙 명시되어 있는 파일 경로
+rule_files:
+  - "./rules/*.yml"
+
+# 로컬의 node_exporter를 지정해서 수집
+scrape_configs:
+  - job_name: "node_exporter"
+    scrape_interval: 3s
+    scrape_timeout: 1s
+    static_configs:
+      - targets:
+          - localhost:9100

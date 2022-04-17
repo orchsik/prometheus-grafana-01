@@ -1,0 +1,25 @@
+# 알람 메니저 설정
+route:
+  group_by: ["alertname"]
+  group_wait: 3s # 알람이 발생했을 때 특정 매체로 전달하는 시간
+  group_interval: 5s # 그룹에 다른 알람이 발생했을 때 5초 대기 후 발송
+  repeat_interval: 20s # 알람이 발생하고 있지 않을 때 재전송
+  receiver: "engineer" # 수신 메체 이름
+
+receivers:
+  - name: "engineer"
+    email_configs:
+      - to: orchsik@gmail.com
+        from: orchsik@gmail.com
+        smarthost: smtp.gmail.com:587
+        auth_username: orchsik@gmail.com
+        auth_password: "okzyqskdfzhpiycx"
+
+# 메모리가 80%이상 - warning, 90%이상 - critical
+# critical 발생한 경우 더 이상 warning에 대한 알람은 불필요하므로 무시하는 설정
+inhibit_rules:
+  - source_matchers:
+      - severity = critical # criticla 알람이 발생했을 때
+    target_matchers:
+      - severity = warning # warning 알람이 오는데
+    equal: ["alertname"] # alertname이 같은 경우
