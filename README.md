@@ -120,3 +120,39 @@ node server.js
 watch -n 0.1 'curl -s http://localhost:8080'
 watch -n 0,1 'curl -s http://localhost:8080/metrix'
 ```
+
+7. PushGateway
+
+1) [prom/pushgateway 설치](./pushgateway/install_push_gateway.sh)
+2) [ss-nltp](ss-nltp)
+   - 9091 포트에 PushGateway가 정상적으로 실행되는것을 확인할 수 있다.
+3) PushGateway 설정 적용
+
+   ```bash
+   cd /prometheus/config
+   vim pushgateway.yml
+   ln -sf pushgateway.yml prometheus.yml
+   curl http://localhost:9090/-/reload -XPOST -D /dev/stdout # 프로메테우스 리로드를 통해 설정 적용
+   ```
+
+   - [pushgateway.yml](./pushgateway/pushgateway.yml)
+
+4) PushGateway에 데이터 넣기
+
+   ```bash
+   echo "test_metric 1" | curl --data-binary @- http://localhost:9091/metrics/job/test_job
+   # 아래와 같이 입력하고 싶은 데이터를 추가할 수 있다.
+   echo "test_metric 1" | curl --data-binary @- http://localhost:9091/metrics/job/test_job/instance/test_job
+   ```
+
+5) Node Express를 이용한 실습
+   ```bash
+   cd /prometheus
+   mkdir batch && cd batch
+   npm init -y
+   npm i waait prom-client
+   vim worker.js
+   watch -n 5 'node worker.js'
+   ```
+   - [worker.js](./pushgateway/worker.js)
+   - http://########:9090/graph 에서 "batch_process_time_second[1m]" 쿼리로 확인 가능.
